@@ -1,10 +1,10 @@
-package fr.miage.evmiage.service;
+package fr.miage.evmiage.station;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class ServiceApplicationTests {
+class StationApplicationTests {
 
 	@Test
 	void contextLoads() {

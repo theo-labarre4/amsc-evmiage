@@ -1,13 +1,13 @@
-package fr.miage.evmiage.service;
+package fr.miage.evmiage.station;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class ServiceApplication {
+public class StationApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(ServiceApplication.class, args);
+		SpringApplication.run(StationApplication.class, args);
 	}
 
 }
