@@ -1,0 +1,133 @@
+version: '3.8'
+
+
+services:
+  service-discovery:
+    image: openjdk:21
+    container_name: service-discovery
+    volumes:
+      - ./service-discovery/target:/app/target # Mount the entire target directory
+    working_dir: /app
+    command: ["java", "-jar", "target/service-discovery.jar"] # Use the JAR file within the target directory
+    ports:
+      - "8761:8761"
+    environment:
+      - EUREKA_SERVER_URL=http://service-discovery:8761/eureka
+
+  api-gateway:
+    image: openjdk:21
+    container_name: api-gateway
+    volumes:
+      - ./api-gateway/target:/app/target
+    working_dir: /app
+    command: ["java", "-jar", "target/api-gateway.jar"]
+    ports:
+      - "8080:8080"
+    depends_on:
+      - service-discovery
+    environment:
+      - EUREKA_SERVER_URL=http://service-discovery:8761/eureka
+
+  rental-service:
+    image: openjdk:21
+    container_name: rental-service
+    volumes:
+      - ./rental-service/target:/app/target
+    working_dir: /app
+    command: ["java", "-jar", "target/rental-service.jar"]
+    ports:
+      - "8081:8081"
+    depends_on:
+      - service-discovery
+      - rental-db
+    environment:
+      - EUREKA_SERVER_URL=http://service-discovery:8761/eureka
+
+  station-service:
+    image: openjdk:21
+    container_name: station-service
+    volumes:
+      - ./station-service/target:/app/target
+    working_dir: /app
+    command: ["java", "-jar", "target/station-service.jar"]
+    ports:
+      - "8082:8082"
+    depends_on:
+      - service-discovery
+      - station-db
+    environment:
+      - EUREKA_SERVER_URL=http://service-discovery:8761/eureka
+
+  vehicule-service:
+    image: openjdk:21
+    container_name: vehicule-service
+    volumes:
+      - ./vehicule-service/target:/app/target
+    working_dir: /app
+    command: ["java", "-jar", "target/vehicule-service.jar"]
+    ports:
+      - "8083:8083"
+    depends_on:
+      - service-discovery
+      - vehicule-db
+    environment:
+      - EUREKA_SERVER_URL=http://service-discovery:8761/eureka
+
+  utilisateur-service:
+    image: openjdk:21
+    container_name: utilisateur-service
+    volumes:
+      - ./utilisateur-service/target:/app/target
+    working_dir: /app
+    command: ["java", "-jar", "target/utilisateur-service.jar"]
+    ports:
+      - "8084:8084"
+    depends_on:
+      - service-discovery
+      - utilisateur-db
+    environment:
+      - EUREKA_SERVER_URL=http://service-discovery:8761/eureka
+
+  rental-db:
+    image: mongo:7.0.5
+    container_name: mongodb-rental
+    ports:
+      - "27020:27017"
+    environment:
+      MONGO_INITDB_DATABASE: rental
+    volumes:
+      - ./rental-service/data:/data/db
+    command: mongod --noauth
+
+  station-db:
+    image: mongo:7.0.5
+    container_name: mongodb-station
+    ports:
+      - "27018:27017"
+    environment:
+      MONGO_INITDB_DATABASE: station
+    volumes:
+      - ./station-service/data:/data/db
+    command: mongod --noauth
+
+  vehicule-db:
+    image: mongo:7.0.5
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: vehicule
+    volumes:
+      - ./vehicule-service/data:/data/db
+    command: mongod --noauth
+
+  utilisateur-db:
+    image: mongo:7.0.5
+    container_name: mongodb-utilisateur
+    ports:
+      - "27019:27017"
+    environment:
+      MONGO_INITDB_DATABASE: utilisateur
+    volumes:
+      - ./utilisateur-service/data:/data/db
+    command: mongod --noauth

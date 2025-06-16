@@ -6,7 +6,7 @@ services:
     ports:
       - "27017:27017"
     environment:
-      MONGO_INITDB_DATABASE: vehicle
+      MONGO_INITDB_DATABASE: vehicule
     volumes:
       - ./data:/data/db
     command: mongod --noauth

@@ -12,8 +12,8 @@
     <artifactId>Utilisateur</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
-    <name>Utilisateur</name>
-    <description>Utilisateur</description>
+    <name>utilisateur-service</name>
+    <description>utilisateur-service</description>
     <url/>
     <licenses>
         <license/>
@@ -61,6 +61,7 @@
     </dependencies>
 
     <build>
+        <finalName>utilisateur-service</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
