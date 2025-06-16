@@ -11,6 +11,9 @@ Thumbs.db
 ### Ignore Maven target directory
 **/target/
 
+## Ignore data directories
+**/data/
+
 ### Ignore Gradle build directory
 **/build/
 
