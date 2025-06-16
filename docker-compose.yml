@@ -3,10 +3,10 @@ version: '3.8'
 
 services:
   service-discovery:
-    image: openjdk:21
+    build:
+      context: ./service-discovery
+      dockerfile: Dockerfile
     container_name: service-discovery
-    volumes:
-      - ./service-discovery/target:/app/target # Mount the entire target directory
     working_dir: /app
     command: ["java", "-jar", "target/service-discovery.jar"] # Use the JAR file within the target directory
     ports:
@@ -15,12 +15,10 @@ services:
       - EUREKA_SERVER_URL=http://service-discovery:8761/eureka
 
   api-gateway:
-    image: openjdk:21
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
     container_name: api-gateway
-    volumes:
-      - ./api-gateway/target:/app/target
-    working_dir: /app
-    command: ["java", "-jar", "target/api-gateway.jar"]
     ports:
       - "8080:8080"
     depends_on:
@@ -29,12 +27,10 @@ services:
       - EUREKA_SERVER_URL=http://service-discovery:8761/eureka
 
   rental-service:
-    image: openjdk:21
+    build:
+      context: ./rental-service
+      dockerfile: Dockerfile
     container_name: rental-service
-    volumes:
-      - ./rental-service/target:/app/target
-    working_dir: /app
-    command: ["java", "-jar", "target/rental-service.jar"]
     ports:
       - "8081:8081"
     depends_on:
@@ -43,11 +39,12 @@ services:
     environment:
       - EUREKA_SERVER_URL=http://service-discovery:8761/eureka
 
+
   station-service:
-    image: openjdk:21
+    build:
+      context: ./station-service
+      dockerfile: Dockerfile
     container_name: station-service
-    volumes:
-      - ./station-service/target:/app/target
     working_dir: /app
     command: ["java", "-jar", "target/station-service.jar"]
     ports:
@@ -59,10 +56,10 @@ services:
       - EUREKA_SERVER_URL=http://service-discovery:8761/eureka
 
   vehicule-service:
-    image: openjdk:21
+    build:
+      context: ./vehicule-service
+      dockerfile: Dockerfile
     container_name: vehicule-service
-    volumes:
-      - ./vehicule-service/target:/app/target
     working_dir: /app
     command: ["java", "-jar", "target/vehicule-service.jar"]
     ports:
@@ -74,10 +71,10 @@ services:
       - EUREKA_SERVER_URL=http://service-discovery:8761/eureka
 
   utilisateur-service:
-    image: openjdk:21
+    build:
+      context: ./utilisateur-service
+      dockerfile: Dockerfile
     container_name: utilisateur-service
-    volumes:
-      - ./utilisateur-service/target:/app/target
     working_dir: /app
     command: ["java", "-jar", "target/utilisateur-service.jar"]
     ports:
@@ -112,7 +109,7 @@ services:
 
   vehicule-db:
     image: mongo:7.0.5
-    container_name: mongodb
+    container_name: mongodb-vehicule
     ports:
       - "27017:27017"
     environment:
