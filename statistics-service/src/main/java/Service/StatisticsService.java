@@ -22,7 +22,7 @@ public class StatisticsService {
     private final RentalClient rentalClient;
     private final UserClient userClient;
 
-    public GlobalStatisticsDTO getGlobalStatistics(String periodType, LocalDateTime from, LocalDateTime to) {
+    public GlobalStatisticsDTO getGlobalStatistics() {
         // Fetch data from other services
         List<VehicleDTO> vehicles = vehicleClient.getAllVehicles();
         List<StationDTO> stations = stationClient.getAllStations();
