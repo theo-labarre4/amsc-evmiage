@@ -12,11 +12,13 @@ import com.example.rental.dto.StationDto;
 import com.example.rental.dto.NearbyStationResponse;
 import com.example.rental.exception.StationFullException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class RentalService {
@@ -39,19 +41,10 @@ public class RentalService {
             throw new IllegalStateException("Le véhicule n'est pas disponible pour une location.");
         }
 
-        // 3. Essayer d'ajouter le véhicule à la station (qui va le retirer de fait)
-        try {
-            ResponseEntity<?> response = stationClient.addVehicleToStation(request.getStationId(), request.getVehiculeId());
-            
-            if (response.getStatusCode().is4xxClientError() && response.getBody() instanceof NearbyStationResponse) {
-                NearbyStationResponse nearbyResponse = (NearbyStationResponse) response.getBody();
-                throw new StationFullException(nearbyResponse.getMessage(), nearbyResponse.getNearbyStations());
-            }
-        } catch (Exception e) {
-            if (e instanceof StationFullException) {
-                throw e;
-            }
-            throw new IllegalStateException("Erreur lors de la réservation du véhicule à la station.");
+        // 3. Essayer de retirer le véhicule de la station
+        ResponseEntity<?> response = stationClient.removeVehicleFromStation(request.getStationId(), request.getVehiculeId());
+        if (!response.getStatusCode().is2xxSuccessful()) {
+            throw new RuntimeException("Failed to remove vehicle from station");
         }
 
         // 4. Mettre à jour l'utilisateur : enLocation = true
@@ -92,19 +85,23 @@ public class RentalService {
         // 3. Récupérer la station
         StationDto station = stationClient.getStation(rental.getStationId());
 
-        // 4. Mettre à jour l'utilisateur : enLocation = false
+        // 4. Ajouter le véhicule à la station
+        ResponseEntity<?> response = stationClient.addVehicleToStation(rental.getStationId(), rental.getVehiculeId());
+        if (!response.getStatusCode().is2xxSuccessful()) {
+            throw new RuntimeException("Failed to add vehicle back to station");
+        }
+
+        // 5. Mettre à jour l'utilisateur : enLocation = false
         utilisateur.setEnLocation(false);
         utilisateurClient.mettreAJourUtilisateur(utilisateur.getId(), utilisateur);
 
-        // 5. Mettre à jour le véhicule : OPERATIONNEL_GARE
+        // 6. Mettre à jour le véhicule : OPERATIONNEL_GARE
         vehicule.setEtat(VehiculeDto.Etat.OPERATIONNEL_GARE);
         vehiculeClient.mettreAJourVehicule(vehicule.getId(), vehicule);
 
-        // 6. Mettre à jour la station : placeOccupee++
-        station.setPlaceOccupee(station.getPlaceOccupee() + 1);
-        stationClient.mettreAJourStation(station.getId(), station);
+        // 7. Station update is handled automatically by station service
 
-        // 7. Mettre à jour la location avec l'heure de fin
+        // 8. Mettre à jour la location avec l'heure de fin
         rental.setEndTime(LocalDateTime.now().toString());
 
         return rentalRepository.save(rental);

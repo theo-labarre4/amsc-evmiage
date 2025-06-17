@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import com.example.rental.dto.StationDto;
 
 
@@ -19,6 +20,9 @@ public interface StationClient  {
     @PutMapping("/stations/{id}")
     StationDto mettreAJourStation(@PathVariable("id") String id, @RequestBody StationDto stationDto);
 
-    @PostMapping("/stations/{stationId}/vehicles/{vehicleId}")
-    ResponseEntity<?> addVehicleToStation(@PathVariable("stationId") String stationId, @PathVariable("vehicleId") String vehicleId);
+    @PostMapping("/stations/{stationId}/vehicles")
+    ResponseEntity<?> addVehicleToStation(@PathVariable("stationId") String stationId, @RequestBody String vehicleId);
+
+    @DeleteMapping("/stations/{stationId}/vehicles/{vehicleId}")
+    ResponseEntity<?> removeVehicleFromStation(@PathVariable("stationId") String stationId, @PathVariable("vehicleId") String vehicleId);
 }
