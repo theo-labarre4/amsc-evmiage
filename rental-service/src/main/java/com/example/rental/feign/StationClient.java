@@ -1,8 +1,10 @@
 package com.example.rental.feign;
 
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import com.example.rental.dto.StationDto;
@@ -16,4 +18,7 @@ public interface StationClient  {
 
     @PutMapping("/stations/{id}")
     StationDto mettreAJourStation(@PathVariable("id") String id, @RequestBody StationDto stationDto);
+
+    @PostMapping("/stations/{stationId}/vehicles/{vehicleId}")
+    ResponseEntity<?> addVehicleToStation(@PathVariable("stationId") String stationId, @PathVariable("vehicleId") String vehicleId);
 }

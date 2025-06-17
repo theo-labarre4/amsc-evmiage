@@ -1,0 +1,245 @@
+{
+  "info": {
+    "name": "Station Service Tests",
+    "description": "Postman collection to test StationServiceController endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Get All Stations",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/station-service/stations"
+      }
+    },
+    {
+      "name": "Get Station By ID",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/station-service/stations/{{stationId}}",
+        "description": "Get a specific station by ID"
+      }
+    },
+    {
+      "name": "Create Station",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/station-service/stations",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"location\": \"Test Location\",\n  \"latitude\": 48.8566,\n  \"longitude\": 2.3522,\n  \"placeTotale\": 10,\n  \"vehicleIds\": []\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Delete Station",
+      "request": {
+        "method": "DELETE",
+        "url": "{{baseUrl}}/station-service/stations/{{stationId}}",
+        "description": "Delete a station by ID"
+      }
+    },
+    {
+      "name": "Update Vehicle IDs (Replace All)",
+      "request": {
+        "method": "PUT",
+        "url": "{{baseUrl}}/station-service/stations/{{stationId}}/vehicles",
+        "description": "Replace all vehicle IDs for a station",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "[\"vehicle1\", \"vehicle2\", \"vehicle3\"]",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Add Vehicle to Station",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/station-service/stations/{{stationId}}/vehicles",
+        "description": "Add a single vehicle to a station",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "\"vehicle123\"",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Add Vehicle to Full Station (Test Nearby Response)",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/station-service/stations/{{fullStationId}}/vehicles",
+        "description": "Test adding vehicle to full station to get nearby stations response",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "\"vehicleForFullStation\"",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Remove Vehicle from Station",
+      "request": {
+        "method": "DELETE",
+        "url": "{{baseUrl}}/station-service/stations/{{stationId}}/vehicles/{{vehicleId}}",
+        "description": "Remove a specific vehicle from a station using path parameters"
+      }
+    },
+    {
+      "name": "Add Duplicate Vehicle (Test Error)",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/station-service/stations/{{stationId}}/vehicles",
+        "description": "Test adding the same vehicle twice to get duplicate error",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "\"vehicle123\"",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Update Vehicle IDs with Duplicates (Test Error)",
+      "request": {
+        "method": "PUT",
+        "url": "{{baseUrl}}/station-service/stations/{{stationId}}/vehicles",
+        "description": "Test updating vehicle IDs with duplicates to get error",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "[\"vehicle1\", \"vehicle2\", \"vehicle1\"]",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Create Full Station for Testing",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/station-service/stations",
+        "description": "Create a station that will be full to test nearby recommendations",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"location\": \"Full Test Station\",\n  \"latitude\": 48.8600,\n  \"longitude\": 2.3600,\n  \"placeTotale\": 2,\n  \"vehicleIds\": [\"fullVehicle1\", \"fullVehicle2\"]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Create Available Station for Testing",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/station-service/stations",
+        "description": "Create a station with available space for nearby recommendations",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"location\": \"Available Test Station\",\n  \"latitude\": 48.8500,\n  \"longitude\": 2.3400,\n  \"placeTotale\": 5,\n  \"vehicleIds\": [\"availableVehicle1\"]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "stationId",
+      "value": "station123",
+      "type": "string"
+    },
+    {
+      "key": "vehicleId",
+      "value": "vehicle123",
+      "type": "string"
+    },
+    {
+      "key": "fullStationId",
+      "value": "fullStation123",
+      "type": "string"
+    }
+  ]
+}

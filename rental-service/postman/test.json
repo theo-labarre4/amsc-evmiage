@@ -1,0 +1,555 @@
+{
+  "info": {
+    "name": "Rental Controller API Tests",
+    "description": "Comprehensive testing collection for rental controller endpoints including all success and error scenarios",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "1.0.0"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080/rental-service",
+      "type": "string"
+    },
+    {
+      "key": "validUserId",
+      "value": "user-available-123",
+      "type": "string"
+    },
+    {
+      "key": "busyUserId",
+      "value": "user-busy-456",
+      "type": "string"
+    },
+    {
+      "key": "validVehicleId",
+      "value": "vehicle-available-789",
+      "type": "string"
+    },
+    {
+      "key": "unavailableVehicleId",
+      "value": "vehicle-busy-101",
+      "type": "string"
+    },
+    {
+      "key": "validStationId",
+      "value": "station-available-202",
+      "type": "string"
+    },
+    {
+      "key": "fullStationId",
+      "value": "station-full-303",
+      "type": "string"
+    },
+    {
+      "key": "createdRentalId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "POST /rental-service/rentals/start - Success Scenario",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response contains rental data', function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('id');",
+              "    pm.expect(jsonData).to.have.property('userId');",
+              "    pm.expect(jsonData).to.have.property('vehiculeId');",
+              "    pm.expect(jsonData).to.have.property('stationId');",
+              "    pm.expect(jsonData).to.have.property('startTime');",
+              "    pm.expect(jsonData.endTime).to.be.null;",
+              "    ",
+              "    // Store rental ID for end rental tests",
+              "    pm.collectionVariables.set('createdRentalId', jsonData.id);",
+              "});",
+              "",
+              "pm.test('User ID matches request', function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData.userId).to.eql(pm.collectionVariables.get('validUserId'));",
+              "});",
+              "",
+              "pm.test('Vehicle ID matches request', function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData.vehiculeId).to.eql(pm.collectionVariables.get('validVehicleId'));",
+              "});",
+              "",
+              "pm.test('Station ID matches request', function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData.stationId).to.eql(pm.collectionVariables.get('validStationId'));",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"userId\": \"{{validUserId}}\",\n  \"vehiculeId\": \"{{validVehicleId}}\",\n  \"stationId\": \"{{validStationId}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/rentals/start",
+          "host": ["{{baseUrl}}"],
+          "path": ["rentals", "start"]
+        }
+      }
+    },
+    {
+      "name": "POST /rental-service/rentals/start - User Already Renting",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 500 (Internal Server Error)', function () {",
+              "    pm.response.to.have.status(500);",
+              "});",
+              "",
+              "pm.test('Error message indicates user already renting', function () {",
+              "    const responseText = pm.response.text();",
+              "    pm.expect(responseText).to.include('utilisateur est déjà en location');",
+              "});",
+              "",
+              "pm.test('Response time is acceptable', function () {",
+              "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"userId\": \"{{busyUserId}}\",\n  \"vehiculeId\": \"{{validVehicleId}}\",\n  \"stationId\": \"{{validStationId}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/rentals/start",
+          "host": ["{{baseUrl}}"],
+          "path": ["rentals", "start"]
+        }
+      }
+    },
+    {
+      "name": "POST /rental-service/rentals/start - Vehicle Not Available",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 500 (Internal Server Error)', function () {",
+              "    pm.response.to.have.status(500);",
+              "});",
+              "",
+              "pm.test('Error message indicates vehicle not available', function () {",
+              "    const responseText = pm.response.text();",
+              "    pm.expect(responseText).to.include('véhicule n\\'est pas disponible');",
+              "});",
+              "",
+              "pm.test('Response time is acceptable', function () {",
+              "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"userId\": \"{{validUserId}}\",\n  \"vehiculeId\": \"{{unavailableVehicleId}}\",\n  \"stationId\": \"{{validStationId}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/rentals/start",
+          "host": ["{{baseUrl}}"],
+          "path": ["rentals", "start"]
+        }
+      }
+    },
+    {
+      "name": "POST /rental-service/rentals/start - Station Full (Nearby Stations)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 400 (Bad Request)', function () {",
+              "    pm.response.to.have.status(400);",
+              "});",
+              "",
+              "pm.test('Response contains nearby stations structure', function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('message');",
+              "    pm.expect(jsonData).to.have.property('nearbyStations');",
+              "    pm.expect(jsonData.nearbyStations).to.be.an('array');",
+              "});",
+              "",
+              "pm.test('Message indicates station is full', function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData.message).to.include('Station is full');",
+              "});",
+              "",
+              "pm.test('Nearby stations array has maximum 3 items', function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData.nearbyStations.length).to.be.at.most(3);",
+              "});",
+              "",
+              "pm.test('Each nearby station has required properties', function () {",
+              "    const jsonData = pm.response.json();",
+              "    if (jsonData.nearbyStations.length > 0) {",
+              "        jsonData.nearbyStations.forEach(station => {",
+              "            pm.expect(station).to.have.property('id');",
+              "            pm.expect(station).to.have.property('nom');",
+              "            pm.expect(station).to.have.property('placeOccupee');",
+              "            pm.expect(station.placeOccupee).to.be.at.least(1);",
+              "        });",
+              "    }",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"userId\": \"{{validUserId}}\",\n  \"vehiculeId\": \"{{validVehicleId}}\",\n  \"stationId\": \"{{fullStationId}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/rentals/start",
+          "host": ["{{baseUrl}}"],
+          "path": ["rentals", "start"]
+        }
+      }
+    },
+    {
+      "name": "POST /rental-service/rentals/start - Invalid JSON",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 400 (Bad Request)', function () {",
+              "    pm.response.to.have.status(400);",
+              "});",
+              "",
+              "pm.test('Response indicates JSON parsing error', function () {",
+              "    const responseText = pm.response.text();",
+              "    pm.expect(responseText.toLowerCase()).to.include('json');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"userId\": \"{{validUserId}}\",\n  \"vehiculeId\": \"{{validVehicleId}}\",\n  \"stationId\": \"{{validStationId}}\"\n  // Missing closing brace - invalid JSON"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/rentals/start",
+          "host": ["{{baseUrl}}"],
+          "path": ["rentals", "start"]
+        }
+      }
+    },
+    {
+      "name": "POST /rental-service/rentals/start - Missing Required Fields",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 4xx or 5xx (Error)', function () {",
+              "    pm.expect(pm.response.code).to.be.oneOf([400, 500]);",
+              "});",
+              "",
+              "pm.test('Response indicates validation error', function () {",
+              "    const responseText = pm.response.text();",
+              "    // Check if response indicates missing field or validation error",
+              "    pm.expect(responseText.length).to.be.greaterThan(0);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"userId\": \"{{validUserId}}\"\n  // Missing vehiculeId and stationId\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/rentals/start",
+          "host": ["{{baseUrl}}"],
+          "path": ["rentals", "start"]
+        }
+      }
+    },
+    {
+      "name": "POST /rental-service/rentals/end/{rentalId} - Success Scenario",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response contains completed rental data', function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('id');",
+              "    pm.expect(jsonData).to.have.property('userId');",
+              "    pm.expect(jsonData).to.have.property('vehiculeId');",
+              "    pm.expect(jsonData).to.have.property('stationId');",
+              "    pm.expect(jsonData).to.have.property('startTime');",
+              "    pm.expect(jsonData).to.have.property('endTime');",
+              "});",
+              "",
+              "pm.test('End time is set and not null', function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData.endTime).to.not.be.null;",
+              "    pm.expect(jsonData.endTime).to.not.be.empty;",
+              "});",
+              "",
+              "pm.test('Rental ID matches request parameter', function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData.id).to.eql(pm.collectionVariables.get('createdRentalId'));",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/rentals/end/{{createdRentalId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["rentals", "end", "{{createdRentalId}}"]
+        }
+      }
+    },
+    {
+      "name": "POST /rental-service/rentals/end/{rentalId} - Rental Not Found",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 500 (Internal Server Error)', function () {",
+              "    pm.response.to.have.status(500);",
+              "});",
+              "",
+              "pm.test('Error message indicates rental not found', function () {",
+              "    const responseText = pm.response.text();",
+              "    pm.expect(responseText).to.include('Location non trouvée');",
+              "});",
+              "",
+              "pm.test('Response time is acceptable', function () {",
+              "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/rentals/end/non-existent-rental-id-999",
+          "host": ["{{baseUrl}}"],
+          "path": ["rentals", "end", "non-existent-rental-id-999"]
+        }
+      }
+    },
+    {
+      "name": "POST /rental-service/rentals/end/{rentalId} - User Not Currently Renting",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 500 (Internal Server Error)', function () {",
+              "    pm.response.to.have.status(500);",
+              "});",
+              "",
+              "pm.test('Error message indicates user not renting', function () {",
+              "    const responseText = pm.response.text();",
+              "    pm.expect(responseText).to.include('utilisateur n\\'est pas en location');",
+              "});",
+              "",
+              "pm.test('Response time is acceptable', function () {",
+              "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/rentals/end/rental-with-inactive-user",
+          "host": ["{{baseUrl}}"],
+          "path": ["rentals", "end", "rental-with-inactive-user"]
+        }
+      }
+    },
+    {
+      "name": "POST /rental-service/rentals/end/{rentalId} - Vehicle Not In Use",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 500 (Internal Server Error)', function () {",
+              "    pm.response.to.have.status(500);",
+              "});",
+              "",
+              "pm.test('Error message indicates vehicle not in use', function () {",
+              "    const responseText = pm.response.text();",
+              "    pm.expect(responseText).to.include('véhicule n\\'est pas en usage');",
+              "});",
+              "",
+              "pm.test('Response time is acceptable', function () {",
+              "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/rentals/end/rental-with-parked-vehicle",
+          "host": ["{{baseUrl}}"],
+          "path": ["rentals", "end", "rental-with-parked-vehicle"]
+        }
+      }
+    },
+    {
+      "name": "POST /rental-service/rentals/end/{rentalId} - Empty Rental ID",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 404 (Not Found) or 405 (Method Not Allowed)', function () {",
+              "    pm.expect(pm.response.code).to.be.oneOf([404, 405]);",
+              "});",
+              "",
+              "pm.test('Response indicates invalid endpoint', function () {",
+              "    // Empty rental ID should result in invalid endpoint",
+              "    pm.expect(pm.response.code).to.not.equal(200);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/rentals/end/",
+          "host": ["{{baseUrl}}"],
+          "path": ["rentals", "end", ""]
+        }
+      }
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Set timestamp for unique test data",
+          "pm.collectionVariables.set('timestamp', Date.now());",
+          "",
+          "// Log test execution",
+          "console.log('Executing rental controller test at: ' + new Date().toISOString());"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Global test for all requests",
+          "pm.test('Response time is under 10 seconds', function () {",
+          "    pm.expect(pm.response.responseTime).to.be.below(10000);",
+          "});",
+          "",
+          "pm.test('Response has valid headers', function () {",
+          "    pm.expect(pm.response.headers.get('Content-Type')).to.exist;",
+          "});",
+          "",
+          "// Log response details for debugging",
+          "console.log('Response Status:', pm.response.status);",
+          "console.log('Response Time:', pm.response.responseTime + 'ms');"
+        ]
+      }
+    }
+  ]
+}

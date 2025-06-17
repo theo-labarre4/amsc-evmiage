@@ -1,6 +1,7 @@
 package com.example.stationservice.dto;
 
 import lombok.*;
+import java.util.List;
 
 @Getter
 @Setter
@@ -11,6 +12,8 @@ import lombok.*;
 public class StationServiceDto {
     private String id;
     private String location;
+    private double latitude;
+    private double longitude;
     private int placeTotale;
-    private int placeOccupee;
+    private List<String> vehicleIds;
 }
