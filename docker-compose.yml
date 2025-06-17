@@ -85,6 +85,21 @@ services:
     environment:
       - EUREKA_SERVER_URL=http://service-discovery:8761/eureka
 
+  statistics-service:
+    build:
+      context: ./statistics-service
+      dockerfile: Dockerfile
+    container_name: statistics-service
+    working_dir: /app
+    command: ["java", "-jar", "target/statistics-service.jar"]
+    ports:
+      - "8085:8085"
+    depends_on:
+      - service-discovery
+      - statistics-db
+    environment:
+      - EUREKA_SERVER_URL=http://service-discovery:8761/eureka
+
   rental-db:
     image: mongo:7.0.5
     container_name: mongodb-rental
@@ -127,4 +142,15 @@ services:
       MONGO_INITDB_DATABASE: utilisateur
     volumes:
       - ./utilisateur-service/data:/data/db
+    command: mongod --noauth
+
+  statistics-db:
+    image: mongo:7.0.5
+    container_name: mongodb-statistics
+    ports:
+      - "27021:27017"
+    environment:
+      MONGO_INITDB_DATABASE: statistics
+    volumes:
+      - ./statistics-service/data:/data/db
     command: mongod --noauth

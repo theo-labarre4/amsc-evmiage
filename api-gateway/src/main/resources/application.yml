@@ -6,29 +6,35 @@ cloud:
         uri: lb://vehicule-service
         predicates:
           - Path=/vehicules/**
-        filter:
-          - StripPrefix=1
+        # filters:
+        #   - StripPrefix=1
         ##station
       - id: station-service
         uri: lb://station-service
         predicates:
           - Path=/stations/**
-        filter:
-          - StripPrefix=1
+        # filters:
+        #   - StripPrefix=1
         ##user
       - id: utilisateur-service
         uri: lb://utilisateur-service
         predicates:
           - Path=/utilisateurs/**
-        filter:
-          - StripPrefix=1
+        # filters:
+        #   - StripPrefix=1
         #rental
       - id: rental-service
         uri: lb://rental-service
         predicates:
           - Path=/rentals/**
-        filter:
-          - StripPrefix=1
+        # filters:
+        #   - StripPrefix=1
+      - id: statistics-service
+        uri: lb://statistics-service
+        predicates:
+          - Path=/statistics/**
+        # filters:
+        #   - StripPrefix=1
 
 eureka:
   client:
