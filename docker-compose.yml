@@ -89,23 +89,23 @@ services:
     image: mongo:7.0.5
     container_name: mongodb-rental
     ports:
-      - "27020:27017"
+      - "27020:27020"
     environment:
       MONGO_INITDB_DATABASE: rental
     volumes:
       - ./rental-service/data:/data/db
-    command: mongod --noauth
+    command: mongod --noauth --port 27020
 
   station-db:
     image: mongo:7.0.5
     container_name: mongodb-station
     ports:
-      - "27018:27017"
+      - "27018:27018"
     environment:
       MONGO_INITDB_DATABASE: station
     volumes:
       - ./station-service/data:/data/db
-    command: mongod --noauth
+    command: mongod --noauth --port 27018
 
   vehicule-db:
     image: mongo:7.0.5
@@ -122,9 +122,9 @@ services:
     image: mongo:7.0.5
     container_name: mongodb-utilisateur
     ports:
-      - "27019:27017"
+      - "27019:27019"
     environment:
       MONGO_INITDB_DATABASE: utilisateur
     volumes:
       - ./utilisateur-service/data:/data/db
-    command: mongod --noauth
+    command: mongod --noauth --port 27019

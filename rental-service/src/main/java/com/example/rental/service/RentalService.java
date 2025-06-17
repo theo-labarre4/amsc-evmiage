@@ -9,8 +9,11 @@ import com.example.rental.repository.RentalRepository;
 import com.example.rental.dto.UtilisateurDto;
 import com.example.rental.dto.VehiculeDto;
 import com.example.rental.dto.StationDto;
+import com.example.rental.dto.NearbyStationResponse;
+import com.example.rental.exception.StationFullException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
 
@@ -36,10 +39,19 @@ public class RentalService {
             throw new IllegalStateException("Le véhicule n'est pas disponible pour une location.");
         }
 
-        // 3. Vérifier que la station existe
-        StationDto station = stationClient.getStation(request.getStationId());
-        if (station.getPlaceOccupee() <= 0) {
-            throw new IllegalStateException("La station ne contient pas de véhicule disponible.");
+        // 3. Essayer d'ajouter le véhicule à la station (qui va le retirer de fait)
+        try {
+            ResponseEntity<?> response = stationClient.addVehicleToStation(request.getStationId(), request.getVehiculeId());
+            
+            if (response.getStatusCode().is4xxClientError() && response.getBody() instanceof NearbyStationResponse) {
+                NearbyStationResponse nearbyResponse = (NearbyStationResponse) response.getBody();
+                throw new StationFullException(nearbyResponse.getMessage(), nearbyResponse.getNearbyStations());
+            }
+        } catch (Exception e) {
+            if (e instanceof StationFullException) {
+                throw e;
+            }
+            throw new IllegalStateException("Erreur lors de la réservation du véhicule à la station.");
         }
 
         // 4. Mettre à jour l'utilisateur : enLocation = true
@@ -50,15 +62,11 @@ public class RentalService {
         vehicule.setEtat(VehiculeDto.Etat.OPERATIONNEL_USAGE);
         vehiculeClient.mettreAJourVehicule(vehicule.getId(), vehicule);
 
-        // 6. Mettre à jour la station : placeOccupee--
-        station.setPlaceOccupee(station.getPlaceOccupee() - 1);
-        stationClient.mettreAJourStation(station.getId(), station);
-
-        // 7. Enregistrer la location
+        // 6. Enregistrer la location
         Rental rental = Rental.builder()
                 .userId(utilisateur.getId())
                 .vehiculeId(vehicule.getId())
-                .stationId(station.getId())
+                .stationId(request.getStationId())
                 .startTime(LocalDateTime.now().toString())
                 .build();
 
